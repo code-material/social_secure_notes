@@ -1,0 +1,59 @@
+{% extends 'notes/layout.html' %}
+{% load crispy_forms_tags %}
+{% block body %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li id="error_text" {% if message.tags %} class="bg-{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+    <div class="container border p-4 rounded col-4">
+        <p id="error" class="text-white"></p>
+        <h4 class="p-3">Singup Form</h4>
+       <form method="POST" action="{% url 'Signup' %}" id="signupForm">
+            {{form|crispy}}
+            <input class="btn btn-sm btn-success m-3 p-1" type="submit" value="Signup">
+            {% csrf_token %}
+       </form>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <script>
+        $(document).on('submit', '#signupForm', function(e){
+            e.preventDefault();
+            var name = $('#id_name').val()
+            var username = $('#id_username').val()
+            var email = $('#id_Email').val()
+            var password = $('#id_password').val()
+            var re_password = $('#id_re_password').val()
+
+            //ajax call
+            $.ajax({
+                type: 'POST',
+                url :'/signup/',
+                data : {
+                    name :name,
+                    username :username,
+                    email :email,
+                    password :password,
+                    re_password:re_password,
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+                },
+                success:function(response){
+                    console.log(response)
+                    var error = $(response).find('#error_text')
+                    console.log(error);
+                    var error_class = $(error).attr('class')
+                    console.log(error_class);
+                    console.log(error.text())
+                    $('#error').addClass(error_class)
+                    $('#error').addClass('p-2');
+                    $('#error').text(error.text())
+                    window.location = "{% url 'Login' %}"   
+                }
+            })
+
+        })
+    </script>
+{% endblock %}
